@@ -60,6 +60,7 @@ esac
 
 get_supported_variants "$VARIANT"
 SUPPORTEDVARIANTS="$supported_variants"
+GAPPSREMOVEVARIANT="$gappsremove_variant"
 
 if [ -z "$SUPPORTEDVARIANTS" ]; then
   echo "ERROR: Unknown variant! aborting..."; exit 1

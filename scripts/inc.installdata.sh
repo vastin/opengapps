@@ -20,8 +20,7 @@ ro.addon.open_version=$DATE
   EXTRACTFILES="$EXTRACTFILES g.prop"
 }
 makegappsremovetxt(){
-  gapps_remove=""
-  get_supported_variants "stock"
+  get_supported_variants "$GAPPSREMOVEVARIANT"
   get_gapps_list "$supported_variants"
   for gapp in $gapps_list; do
     get_package_info "$gapp"

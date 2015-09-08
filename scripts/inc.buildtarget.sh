@@ -77,6 +77,17 @@ launcher
 mms
 picotts"
 
+tvcore="googlebackuptransport
+gmscorelb
+gsfcore
+katniss
+setupwraith
+vendinglb
+"
+
+tvstock="
+"
+
 # Static definitions, libraries and fallbacks per architecture
 case "$ARCH" in
   arm64)  LIBFOLDER="lib64"
@@ -89,19 +100,25 @@ esac
 
 get_supported_variants(){
   case "$1" in
-    stock|aroma)          supported_variants="pico nano micro mini full stock";;
-    full)                 supported_variants="pico nano micro mini full";;
-    mini)                 supported_variants="pico nano micro mini";;
-    micro)                supported_variants="pico nano micro";;
-    nano)                 supported_variants="pico nano";;
-    pico)                 supported_variants="pico";;
-    *)                    supported_variants="";;
+    stock|aroma)          supported_variants="pico nano micro mini full stock";gappsremove_variant="stock";;
+    full)                 supported_variants="pico nano micro mini full";gappsremove_variant="stock";;
+    mini)                 supported_variants="pico nano micro mini";gappsremove_variant="stock";;
+    micro)                supported_variants="pico nano micro";gappsremove_variant="stock";;
+    nano)                 supported_variants="pico nano";gappsremove_variant="stock";;
+    pico)                 supported_variants="pico";gappsremove_variant="stock";;
+
+    tvstock)              supported_variants="tvstock";gappsremove_variant="tvstock";;
+
+    *)                    supported_variants="";gappsremove_variant="";;
   esac
 }
 
 get_gapps_list(){
   #Compile the list of applications that will be build for this variant
-  gapps_list="$gappscore $gappsoptional"
+  case "$1" in
+    tv*) gapps_list="$tvcore";;
+    *)  gapps_list="$gappscore $gappsoptional";;
+  esac
   for variant in $1; do
     eval "addtogapps=\$gapps$variant"
     gapps_list="$gapps_list $addtogapps"
@@ -134,15 +151,18 @@ get_package_info(){
   packagetarget=""
   packagefiles=""
   case "$1" in
-    framework)                packagetype="Core"; packagefiles="etc framework";;
+    #Common GApps
+    googlebackuptransport)    packagetype="Core"; packagename="com.google.android.backuptransport"; packagetarget="priv-app/GoogleBackupTransport";;
+    gsfcore)                  packagetype="Core"; packagename="com.google.android.gsf"; packagetarget="priv-app/GoogleServicesFramework";;
+
+    #Regular GApps
+    framework)                packagetype="Core"; packagefiles="etc framework";; #These will have to become more detailed, which ones are used for regular and which for tv
     gmscore)                  packagetype="Core"; packagename="com.google.android.gms"; packagetarget="priv-app/PrebuiltGmsCore";;
     googlecontactssync)       packagetype="Core"; packagename="com.google.android.syncadapters.contacts"; packagetarget="app/GoogleContactsSyncAdapter";;
-    googlebackuptransport)    packagetype="Core"; packagename="com.google.android.backuptransport"; packagetarget="priv-app/GoogleBackupTransport";;
     googlefeedback)           packagetype="Core"; packagename="com.google.android.feedback"; packagetarget="priv-app/GoogleFeedback";;
-    gsfcore)                  packagetype="Core"; packagename="com.google.android.gsf"; packagetarget="priv-app/GoogleServicesFramework";;
-    gsflogin)                 packagetype="Core"; packagename="com.google.android.gsf.login"; packagetarget="priv-app/GoogleLoginService";;
     googleonetimeinitializer) packagetype="Core"; packagename="com.google.android.onetimeinitializer"; packagetarget="priv-app/GoogleOneTimeInitializer";;
     googlepartnersetup)       packagetype="Core"; packagename="com.google.android.partnersetup"; packagetarget="priv-app/GooglePartnerSetup";;
+    gsflogin)                 packagetype="Core"; packagename="com.google.android.gsf.login"; packagetarget="priv-app/GoogleLoginService";;
     setupwizard)              packagetype="Core"; packagename="com.google.android.setupwizard"; packagetarget="priv-app/SetupWizard";;
     vending)                  packagetype="Core"; packagename="com.android.vending"; packagetarget="priv-app/Phonesky";;
 
@@ -203,6 +223,15 @@ get_package_info(){
     youtube)        packagetype="GApps";packagename="com.google.android.youtube"; packagetarget="app/YouTube";;
 
     keybdlib)       packagetype="Optional"; packagefiles="$LIBFOLDER/libjni_latinimegoogle.so";;
+
+    #TV GApps
+    tvframework) packagetype="Core"; packagefiles="etc framework";; #These will have to become more detailed, which ones are used for regular and which for tv
+    gmscorelb)   packagetype="Core"; packagename="com.google.android.gms.leanback"; packagetarget="priv-app/PrebuiltGmsCorePano";;
+    katniss)     packagetype="Core"; packagename="com.google.android.katniss.leanback"; packagetarget="priv-app/Katniss";;
+    setupwraith) packagetype="Core"; packagename="com.google.android.tungsten.setupwraith"; packagetarget="priv-app/SetupWraith";;
+    vendinglb)   packagetype="Core"; packagename="com.android.vending.leanback"; packagetarget="priv-app/PhoneskyKamikazeCanvas";;
+
+    #'app' TV apps still missing
 
     *)              echo "ERROR! Missing build rule for application with keyword $1";exit 1;;
   esac
